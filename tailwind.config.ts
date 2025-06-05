@@ -1,11 +1,7 @@
-// tailwind.config.js
-const {heroui} = require("@heroui/react");
+const { heroui } = require("@heroui/react");
 
-/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./node_modules/@heroui/theme/dist/components/(toast|spinner).js"
-],
+  content: ["./node_modules/@heroui/theme/dist/components/(toast|spinner).js"],
   plugins: [
     heroui({
       layout: {
