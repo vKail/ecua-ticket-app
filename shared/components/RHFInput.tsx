@@ -43,6 +43,7 @@ function RHFInput({
             placeholder={placeholder}
             className={className}
             {...field}
+            value={field.value ?? ""}
             disabled={disabled ?? isFormDisabled}
           />
         )}
