@@ -8,7 +8,7 @@ export const loginNextAuth = async (params: AuthLoginResponse) => {
       name: params.data.user.person.name,
       surname: params.data.user.person.surname,
       dni: params.data.user.person.dni,
-      email: params.data.user.email,
+      email: params.data.user.person.email,
       username: params.data.user.username,
       password: params.data.user.password,
       role: params.data.user.role,
