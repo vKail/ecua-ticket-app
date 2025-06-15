@@ -26,7 +26,6 @@ export const LoginView: React.FC = () => {
           <LoginForm
             onSubmit={login.onSubmit}
             isLoading={login.isLoading}
-            error={login.isError ? login.error : null}
           />
         </div>
       </div>

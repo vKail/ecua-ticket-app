@@ -11,15 +11,21 @@ export const useLogin = () => {
 
   const onSubmit = async (data: LoginRequest) => {
     setIsLoading(true);
-    const response = await login(data);
-    const result = await loginNextAuth(response);
-    if (result.status === "success") {
-      toast.success(result.message);
-      router.push("/dashboard");
-    } else {
-      toast.error(result.message);
+
+    try {
+      const response = await login(data);
+      const result = await loginNextAuth(response);
+
+      if (result.status === "success") {
+        toast.success(result.message);
+        router.push("/dashboard");
+      } else {
+        toast.error(result.message);
+      }
+    
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return {

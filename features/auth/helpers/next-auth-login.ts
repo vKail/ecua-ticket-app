@@ -5,9 +5,9 @@ export const loginNextAuth = async (params: AuthLoginResponse) => {
   try {
     await signInClient("credentials", {
       id: params.data.user.id,
-      name: params.data.user.name,
-      surname: params.data.user.surname,
-      dni: params.data.user.dni,
+      name: params.data.user.person.name,
+      surname: params.data.user.person.surname,
+      dni: params.data.user.person.dni,
       email: params.data.user.email,
       username: params.data.user.username,
       password: params.data.user.password,

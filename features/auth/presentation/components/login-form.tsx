@@ -16,11 +16,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useLogin } from "../../hooks/use-auth";
 
-export const LoginForm: React.FC = () => {
-  const { onSubmit, isLoading } = useLogin();
+// ✅ Aceptar props desde LoginView
+interface LoginFormProps {
+  onSubmit: (data: LoginRequest) => void;
+  isLoading: boolean;
+  error?: string | null;
+}
 
+export const LoginForm: React.FC<LoginFormProps> = ({
+  onSubmit,
+  isLoading,
+  error,
+}) => {
   const methods = useForm<LoginRequest>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -86,6 +94,13 @@ export const LoginForm: React.FC = () => {
             )}
           />
 
+          {/* Mensaje de error si existe */}
+          {error && (
+            <p className="text-sm text-red-600 font-medium text-center">
+              {error}
+            </p>
+          )}
+
           {/* Botón de envío */}
           <Button
             type="submit"
@@ -99,7 +114,7 @@ export const LoginForm: React.FC = () => {
           <Button
             type="button"
             variant="link"
-            className="text-sm w-full  text-gray-600 hover:text-gray-800 underline"
+            className="text-sm w-full text-gray-600 hover:text-gray-800 underline"
             disabled={isLoading}
           >
             ¿Olvidaste tu contraseña?
@@ -108,7 +123,7 @@ export const LoginForm: React.FC = () => {
           <Button
             type="button"
             variant="link"
-            className="text-sm w-full  text-gray-600 hover:text-gray-800 underline"
+            className="text-sm w-full text-gray-600 hover:text-gray-800 underline"
             disabled={isLoading}
           >
             ¿No tienes una cuenta? Regístrate
