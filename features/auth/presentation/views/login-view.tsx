@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Loader2 } from "lucide-react"
 import { FormDisabledProvider } from "@/shared/contexts/FormDisabledContext"
-import LoginForm from "../components/login-form"
+import {LoginForm} from "../components/login-form"
 
 export default function LoginView() {
   const [isLoading, setIsLoading] = useState(false)

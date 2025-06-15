@@ -1,76 +1,120 @@
-"use client"
+"use client";
 
-// import { useForm, FormProvider } from "react-hook-form"
-// import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Button } from "@/components/ui/button"
-import RHFInput from "@/shared/components/RHFInput"
-import { FormProvider, useForm } from "react-hook-form"
-import { loginSchema } from "../../types/auth-login-schema"
+import React from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import {
+  LoginRequest,
+  loginSchema,
+} from "@/features/auth/types/auth-login-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useLogin } from "../../hooks/use-auth";
 
-// const loginSchema = z.object({
-//   email: z.string().min(1, "El correo electrónico es requerido").email("Ingresa un correo electrónico válido"),
-//   password: z.string().min(1, "La contraseña es requerida").min(6, "La contraseña debe tener al menos 6 caracteres"),
-// })
+export const LoginForm: React.FC = () => {
+  const { onSubmit, isLoading } = useLogin();
 
-type LoginFormData = z.infer<typeof loginSchema>
+  const methods = useForm<LoginRequest>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
 
-interface LoginFormProps {
-  isLoading?: boolean
-}
-
-export default function LoginForm({  isLoading = false }: LoginFormProps) {
-  const methods = useForm<LoginFormData>({
-    // resolver: zodResolver(loginSchema),
-    // defaultValues: {
-    //   email: "",
-    //   password: "",
-    // },
-  })
-
-//   const handleSubmit = (data: LoginFormData) => {
-//     onSubmit(data)
-//   }
+  const handleSubmit = (data: LoginRequest) => {
+    onSubmit(data);
+  };
 
   return (
-    <FormProvider {...methods} >
-      <form className="space-y-6">
-        <RHFInput
-          name="email"
-          label="Correo electrónico"
-          type="email"
-          placeholder="example@example.com"
-          disabled={isLoading}
-        />
-
-        <RHFInput
-          name="password"
-          label="Contraseña"
-          type="password"
-          placeholder="••••••••••••••••"
-          disabled={isLoading}
-        />
-
-        <div className="text-center">
-          <button type="button" className="text-sm text-gray-600 hover:text-gray-800 underline" disabled={isLoading}>
-            ¿Olvidaste tu contraseña?
-          </button>
-        </div>
-
-        <Button
-          type="submit"
-          className="w-full bg-blue-900 hover:bg-blue-800 text-white py-3 rounded-lg font-medium"
-          disabled={isLoading}
+    <FormProvider {...methods}>
+      <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg p-8">
+        <form
+          onSubmit={methods.handleSubmit(handleSubmit)}
+          className="space-y-6"
         >
-          {isLoading ? "Iniciando sesión..." : "Contraseña"}
-        </Button>
+          {/* Usuario */}
+          <FormField
+            control={methods.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel className="text-sm font-medium text-gray-900">
+                  Usuario
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="usuario"
+                    autoComplete="username"
+                    className="h-12 px-4 text-sm border border-gray-300 rounded-lg focus:ring-0 focus:border-blue-900 transition-colors placeholder:text-gray-400"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <div className="text-center">
-          <button type="button" className="text-sm text-gray-600 hover:text-gray-800 underline" disabled={isLoading}>
-            Crea tu cuenta aquí
-          </button>
-        </div>
-      </form>
+          {/* Contraseña */}
+          <FormField
+            control={methods.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel className="text-sm font-medium text-gray-900">
+                  Contraseña
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="••••••••••••••••"
+                    autoComplete="current-password"
+                    className="h-12 px-4 text-sm border border-gray-300 rounded-lg focus:ring-0 focus:border-blue-900 transition-colors placeholder:text-gray-400"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Botón de envío */}
+          <Button
+            type="submit"
+            className="w-full h-12 bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium rounded-lg transition-all duration-200"
+            disabled={isLoading}
+          >
+            {isLoading ? "Cargando..." : "Iniciar sesión"}
+          </Button>
+
+          {/* Links opcionales */}
+          <Button
+            type="button"
+            variant="link"
+            className="text-sm w-full  text-gray-600 hover:text-gray-800 underline"
+            disabled={isLoading}
+          >
+            ¿Olvidaste tu contraseña?
+          </Button>
+
+          <Button
+            type="button"
+            variant="link"
+            className="text-sm w-full  text-gray-600 hover:text-gray-800 underline"
+            disabled={isLoading}
+          >
+            ¿No tienes una cuenta? Regístrate
+          </Button>
+        </form>
+      </div>
     </FormProvider>
-  )
-}
+  );
+};
