@@ -1,0 +1,6 @@
+[
+  { "id": 1, "seatNumber": "1A", "isOccupied": false },
+  { "id": 2, "seatNumber": "1B", "isOccupied": true },
+  { "id": 3, "seatNumber": "2A", "isOccupied": false },
+  { "id": 4, "seatNumber": "2B", "isOccupied": false }
+]

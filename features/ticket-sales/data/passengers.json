@@ -1,0 +1,12 @@
+[
+  {
+    "passengerId": "1234567890",
+    "passengerName": "Juan Pérez",
+    "passengerType": "NORMAL"
+  },
+  {
+    "passengerId": "0987654321",
+    "passengerName": "Ana Gómez",
+    "passengerType": "SENIOR"
+  }
+]
