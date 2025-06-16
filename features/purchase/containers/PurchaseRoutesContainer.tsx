@@ -76,6 +76,7 @@ export function PurchaseRoutesContainer() {
       busType: route.bus.bodyBrand || "Estándar",
       busCompany: route.frequency.company.name,
       busCompanyLogo: route.frequency.company.logoUrl || undefined,
+      passengers: passengersParam,
     };
   }
 
@@ -102,6 +103,12 @@ export function PurchaseRoutesContainer() {
 
   // Render principal
   const showForm = !originParam || !destinationParam || !dateParam;
+
+  function handleSelectRoute(route: RouteOption) {
+    const routeData = encodeURIComponent(JSON.stringify(route));
+    const passengers = searchParams.get("passengers") || "1"; // Get passengers from current URL
+    router.push(`/dashboard/purchase/seat-selection?route=${routeData}&passengers=${passengers}`);
+  }
 
   return (
     <div className="min-h-screen bg-white px-4 pt-4 pb-24">
@@ -135,7 +142,7 @@ export function PurchaseRoutesContainer() {
           </div>
           <RouteListMobile
             routes={routes}
-            onSelectRoute={() => {}}
+            onSelectRoute={handleSelectRoute}
             isLoading={routesLoading || loadingCities}
             isError={routesError}
           />
