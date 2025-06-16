@@ -39,20 +39,22 @@ export class CheckoutApi implements CheckoutApiProps {
     console.log("Extracted data:", response.data);
 
     return response.data;
-  }  async validatePayment(
+  }
+
+  async validatePayment(
     paymentId: number,
     data?: ValidatePaymentRequest
   ): Promise<ValidatePaymentResponse> {
     console.log("🔍 Validating payment:");
     console.log("- PaymentId (URL):", paymentId);
     console.log("- Data (for query):", data);
-    
+
     // Construir URL con query parameters en lugar de enviarlo en el body
     let url = TICKET_SALES_ROUTES.validatePayment(paymentId);
     if (data?.paypalOrderId) {
       url += `?paypalOrderId=${encodeURIComponent(data.paypalOrderId)}`;
     }
-    
+
     console.log("- Final URL with query:", url);
 
     // Enviar PATCH SIN BODY (undefined) como espera el backend
@@ -60,23 +62,12 @@ export class CheckoutApi implements CheckoutApiProps {
 
     console.log("✅ Validation response:", response);
 
-    // Para PayPal, lanzar error si success es false (para usar con polling)
-    // Para transferencias, retornar la respuesta tal como está
-    if (data?.paypalOrderId) {
-      // Es PayPal - usar lógica de polling (lanzar error si no está validado)
-      if (response.data && response.data.success) {
-        return response.data;
-      } else {
-        // Si success es false, lanzar error para que TanStack Query lo trate como fallido
-        throw new Error("Payment not yet validated");
-      }
+    // Verificar que la respuesta tenga success: true
+    if (response.data && response.data.success) {
+      return response.data;
     } else {
-      // Es transferencia u otro método - retornar respuesta directamente
-      if (response.data) {
-        return response.data;
-      } else {
-        throw new Error("Invalid response from server");
-      }
+      // Si success es false, lanzar error para que TanStack Query lo trate como fallido
+      throw new Error("Payment not yet validated");
     }
   }
 
