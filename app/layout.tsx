@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { GeneralProvider } from "@/shared/providers/general-provider";
-import BackgroundCircles from "@/components/layout/BackgroundCircles";
+import BackgroundCircles from "@/shared/layout/background-circles";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +30,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <BackgroundCircles />
-        <GeneralProvider>{children}</GeneralProvider>
+        <div className="relative z-[1] min-h-screen">
+          <GeneralProvider>{children}</GeneralProvider>
+        </div>
       </body>
     </html>
   );
