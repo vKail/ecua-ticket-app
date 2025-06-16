@@ -1,3 +1,6 @@
+import { Passenger } from "@/core/models/Passenger";
+import { PhysicalSeat } from "@/core/models/PhysicalSeat";
+
 export interface PurchaseResponse {
   id: number;
   subtotal: number;
@@ -36,6 +39,8 @@ export interface Ticket {
   origin: Destination;
   destination: Destination;
   routeSheet: RouteSheet;
+  passenger: Passenger;
+  physicalSeat: PhysicalSeat;
 }
 
 export interface Destination {

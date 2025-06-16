@@ -12,6 +12,7 @@ export interface RouteOption {
   busType: string;
   busCompany: string;
   busCompanyLogo?: string;
+  passengers: number;
 }
 
 interface RouteListMobileProps {

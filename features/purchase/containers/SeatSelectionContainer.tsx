@@ -41,9 +41,10 @@ export function SeatSelectionContainer() {
 
   // Transformar datos de asientos
   const seats = seatsData?.success && seatsData.data && selectedRoute
-    ? seatsData.data.map((seat) =>
-        transformPhysicalSeatToSeat(seat, selectedRoute.price)
-      )
+    ? seatsData.data.map((seat) => {
+        console.log("Raw physical seat data:", seat);
+        return transformPhysicalSeatToSeat(seat, selectedRoute.price);
+      })
     : [];
 
   const handleSeatSelect = (seats: Seat[]) => {
@@ -77,7 +78,7 @@ export function SeatSelectionContainer() {
   }
 
   // Asegurarnos de que maxSeats sea un número válido
-  const maxSeats = selectedRoute.availableSeats || 1;
+  const maxSeats = selectedRoute.passengers || 1; // Leer el número de pasajeros directamente de selectedRoute
   console.log("maxSeats:", maxSeats); // Debug
 
   return (

@@ -56,6 +56,7 @@ export function transformPhysicalSeatToSeat(
   physicalSeat: PhysicalSeatResponse,
   segmentPrice: number
 ): Seat {
+  console.log("Transforming physical seat:", physicalSeat);
   return {
     id: physicalSeat.id.toString(),
     number: physicalSeat.seatNumber,

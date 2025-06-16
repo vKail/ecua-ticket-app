@@ -57,6 +57,7 @@ export function SearchForm({
   const origin = watch("origin");
   const destination = watch("destination");
   const selectedDate = watch("date");
+  const passengers = watch("passengers");
 
   const [showOrigin, setShowOrigin] = useState(false);
   const [showDestination, setShowDestination] = useState(false);
@@ -89,6 +90,7 @@ export function SearchForm({
         origin: data.origin,
         destination: data.destination,
         date: data.date.toISOString(),
+        passengers: passengers.toString(),
       });
       router.push(`/dashboard/horarios?${params.toString()}`);
     } catch (error) {

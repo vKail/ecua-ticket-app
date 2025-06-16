@@ -87,7 +87,7 @@ export interface PhysicalSeatResponse {
 }
 
 export interface QRResponse {
-  qrCode: string; // Base64 encoded QR image
+  qr: string; // Base64 encoded QR image
   accessCode: string;
 }
 
