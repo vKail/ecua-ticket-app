@@ -1,0 +1,5 @@
+export enum RouteStatus {
+  GENERATED = "GENERATED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED"
+}

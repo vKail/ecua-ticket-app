@@ -22,7 +22,6 @@ export const useLogin = () => {
       } else {
         toast.error(result.message);
       }
-    
     } finally {
       setIsLoading(false);
     }

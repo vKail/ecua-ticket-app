@@ -1,88 +1,88 @@
-
-import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios'
-import { HttpHandler, HttpResponse } from '../../interfaces/HttpHandler'
-import { addToast } from '@heroui/toast'
-import { NETWORK_ERROR_RESPONSE } from '../../constants/network-api-response'
+import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
+import { HttpHandler, HttpResponse } from "../../interfaces/HttpHandler";
+import { addToast } from "@heroui/toast";
+import { NETWORK_ERROR_RESPONSE } from "../../constants/network-api-response";
 
 export class AxiosClient implements HttpHandler {
-  private static instance: AxiosClient
-  private axiosInstance: AxiosInstance
+  private static instance: AxiosClient;
+  private axiosInstance: AxiosInstance;
   private static readonly baseURL =
-    process.env.EXPO_PUBLIC_BACKEND_API_URL || ''
-  private accessToken: string | null = null
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1/";
+  private accessToken: string | null = null;
 
   constructor() {
     this.axiosInstance = axios.create({
       baseURL: AxiosClient.baseURL,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-    })
+    });
 
     this.axiosInstance.interceptors.request.use((config) => {
-      console.log('📡 Axios Request:', {
+      console.log("📡 Axios Request:", {
         url: AxiosClient.baseURL + config.url,
         method: config.method,
         headers: config.headers,
         data: config.data,
-      })
-      return config
-    })
+      });
+      return config;
+    });
 
     this.axiosInstance.interceptors.response.use(
       (response) => {
-        if (response.config.method !== 'get') {
+        if (response.config.method !== "get") {
           addToast({
-            title: 'Exito',
-            description: response.data.message, 
-            color: 'success',
-          })
+            title: "Exito",
+            description: response.data.message,
+            color: "success",
+          });
         }
-        return response
+        return response;
       },
       (error) => {
         if (!error.response) {
           addToast({
-            title: 'Error',
-            description: 'Network Error',
-            color: 'danger',
-          })
+            title: "Error",
+            description: "Network Error",
+            color: "danger",
+          });
         } else {
           addToast({
-            title: 'Error',
+            title: "Error",
             description: error.response.data.message,
-            color: 'danger',
-          })
+            color: "danger",
+          });
         }
         if (error.response?.status === 401) {
         }
-        return Promise.reject(error)
+        return Promise.reject(error);
       }
-    )
+    );
   }
 
   static getInstance(): AxiosClient {
     if (!this.instance) {
-      this.instance = new AxiosClient()
+      this.instance = new AxiosClient();
     }
-    return this.instance
+    return this.instance;
   }
 
   setAccessToken(accessToken: string | null): void {
     if (accessToken) {
-      this.axiosInstance.defaults.headers.common['Authorization'] =
-        `Bearer ${accessToken}`
+      this.axiosInstance.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${accessToken}`;
     } else {
-      delete this.axiosInstance.defaults.headers.common['Authorization']
+      delete this.axiosInstance.defaults.headers.common["Authorization"];
     }
   }
 
   getToken(): string | null {
-    return this.accessToken
+    return this.accessToken;
   }
 
   getAxiosInstance(): AxiosInstance {
-    return this.axiosInstance
+    return this.axiosInstance;
   }
 
   async get<T>(
@@ -93,11 +93,11 @@ export class AxiosClient implements HttpHandler {
       const response = await this.axiosInstance.get<HttpResponse<T>>(
         url,
         config
-      )
-      return response.data
+      );
+      return response.data;
     } catch (e: any) {
-      if (!e.response) return NETWORK_ERROR_RESPONSE
-      return e.response.data
+      if (!e.response) return NETWORK_ERROR_RESPONSE;
+      return e.response.data;
     }
   }
 
@@ -111,11 +111,11 @@ export class AxiosClient implements HttpHandler {
         url,
         data,
         config ? config : {}
-      )
-      return response.data
+      );
+      return response.data;
     } catch (e: any) {
-      if (!e.response) return NETWORK_ERROR_RESPONSE
-      return e.response.data
+      if (!e.response) return NETWORK_ERROR_RESPONSE;
+      return e.response.data;
     }
   }
 
@@ -129,11 +129,11 @@ export class AxiosClient implements HttpHandler {
         url,
         data,
         config
-      )
-      return response.data
+      );
+      return response.data;
     } catch (e: any) {
-      if (!e.response) return NETWORK_ERROR_RESPONSE
-      return e.response.data
+      if (!e.response) return NETWORK_ERROR_RESPONSE;
+      return e.response.data;
     }
   }
 
@@ -147,11 +147,11 @@ export class AxiosClient implements HttpHandler {
         url,
         data,
         config
-      )
-      return response.data
+      );
+      return response.data;
     } catch (e: any) {
-      if (!e.response) return NETWORK_ERROR_RESPONSE
-      return e.response.data
+      if (!e.response) return NETWORK_ERROR_RESPONSE;
+      return e.response.data;
     }
   }
 
@@ -163,11 +163,11 @@ export class AxiosClient implements HttpHandler {
       const response = await this.axiosInstance.delete<HttpResponse<T>>(
         url,
         config
-      )
-      return response.data
+      );
+      return response.data;
     } catch (e: any) {
-      if (!e.response) return NETWORK_ERROR_RESPONSE
-      return e.response.data
+      if (!e.response) return NETWORK_ERROR_RESPONSE;
+      return e.response.data;
     }
   }
 }

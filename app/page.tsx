@@ -1,12 +1,10 @@
 import { ArrowLeft, LogOut, Search } from "lucide-react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PurchaseSearchContainer } from "@/features/purchase/containers/PurchaseSearchContainer";
 
 export default function DashboardPage() {
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen">
-      {/* Header */}
       <div className="flex items-center justify-between p-4 bg-white border-b">
         <Button variant="ghost" size="sm" className="text-gray-600">
           <ArrowLeft className="w-4 h-4 mr-1" />
@@ -18,7 +16,6 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      {/* User Greeting */}
       <div className="p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
@@ -29,34 +26,7 @@ export default function DashboardPage() {
           </span>
         </div>
 
-        {/* Main Question */}
-        <div className="mb-2">
-          <h1 className="text-xl font-semibold text-blue-900 mb-1">
-            A donde quieres ir hoy?
-          </h1>
-          <p className="text-gray-600 mb-6">Vámonos de viaje</p>
-        </div>
-
-        {/* Search Input */}
-        <div className="relative mb-8">
-          <Input
-            placeholder="Ambato..."
-            className="pl-4 pr-10 py-3 rounded-lg border-gray-300 text-gray-600"
-          />
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-        </div>
-
-        {/* Travel Illustration */}
-        <div className="flex justify-center mb-8">
-          <div className="w-64 h-48 relative">
-            <Image
-              src="/travel-illustration.png"
-              alt="Personas viajando con equipaje"
-              fill
-              className="object-contain"
-            />
-          </div>
-        </div>
+        <PurchaseSearchContainer />
       </div>
     </div>
   );
