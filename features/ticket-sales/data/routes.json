@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1,
+    "origin": { "id": 1, "name": "Quito" },
+    "destination": { "id": 2, "name": "Guayaquil" },
+    "date": "2024-06-14",
+    "companyId": 1,
+    "companyName": "TransEcuador",
+    "routeSheetId": 101,
+    "frequencies": [
+      { "id": 201, "time": "08:00", "busId": 301, "busPlate": "ABC-1234" },
+      { "id": 202, "time": "14:00", "busId": 302, "busPlate": "XYZ-5678" }
+    ]
+  }
+]
