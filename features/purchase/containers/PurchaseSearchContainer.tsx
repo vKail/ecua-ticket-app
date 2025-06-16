@@ -1,3 +1,4 @@
+"use client"
 import { SearchForm } from "../components/SearchForm";
 
 export function PurchaseSearchContainer() {
