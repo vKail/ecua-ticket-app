@@ -1,9 +1,10 @@
-import type { RouteSearchData } from "../components/route-selector";
-import type { RouteOption } from "../components/route-list";
-import type { Seat } from "../components/seat-selector";
-import type { PassengerData } from "../components/passenger-form";
+import type { RouteSearchData } from "../../ticket-sales/components/route-selector";
+import type { RouteOption } from "../../ticket-sales/components/route-list";
+import type { Seat } from "../../ticket-sales/components/seat-selector";
+import type { PassengerData } from "../../ticket-sales/components/passenger-form";
 
 import { City } from "@/core/models/City";
+import { PassengerType } from "@/core/enums/PassengerType.enum";
 import {
   PhysicalSeatResponse,
   RouteSheetResponse,
@@ -91,6 +92,27 @@ export function transformPassengersToTickets(
       passengerSurname: passenger.lastName,
       passengerEmail: passenger.email,
       passengerBirthDate: new Date(), // This would need to be collected in the form
+    };
+  });
+}
+
+// Transform checkout data to API request format
+export function transformCheckoutToApiRequest(
+  checkoutData: import("../types/checkout.interface").CheckoutData
+): import("../types/checkout.interface").CheckoutTicket[] {
+  return checkoutData.passengers.map((passenger, index) => {
+    const seat = checkoutData.seats[index];
+
+    return {
+      frecuencySegmentPriceId: 1, // This should come from the route data
+      date: new Date().toISOString(),
+      physicalSeatId: parseInt(seat.id),
+      passengerType: PassengerType.NORMAL,
+      passsengerDni: passenger.documentNumber,
+      passengerName: passenger.firstName,
+      passengerSurname: passenger.lastName,
+      passengerEmail: passenger.email,
+      passengerBirthDate: passenger.birthDate,
     };
   });
 }

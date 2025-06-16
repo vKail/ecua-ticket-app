@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { PassengerForm, PassengerData } from "@/features/ticket-sales/components/passenger-form";
+import {
+  PassengerForm,
+  PassengerData,
+} from "@/features/ticket-sales/components/passenger-form";
 import { Seat } from "@/features/ticket-sales/components/seat-selector";
-import { RouteOption } from "../components/RouteListMobile";
+import { RouteOption } from "@/features/ticket-sales/components/route-list";
 
 interface RouteAndSeatsData {
   route: RouteOption;
@@ -45,7 +48,10 @@ export function PassengerFormContainer() {
     }
   }, [searchParams]);
 
-  const handleUpdatePassenger = (index: number, data: Partial<PassengerData>) => {
+  const handleUpdatePassenger = (
+    index: number,
+    data: Partial<PassengerData>
+  ) => {
     setPassengers((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], ...data };
@@ -55,6 +61,22 @@ export function PassengerFormContainer() {
 
   const handleSubmit = () => {
     if (!routeData) return;
+
+    // Validar que todos los pasajeros tengan datos completos
+    const arePassengersComplete = passengers.every(
+      (passenger) =>
+        passenger.firstName.trim() &&
+        passenger.lastName.trim() &&
+        passenger.documentNumber.trim() &&
+        passenger.email.trim() &&
+        passenger.phone.trim() &&
+        passenger.birthDate.trim()
+    );
+
+    if (!arePassengersComplete) {
+      alert("Por favor, completa todos los datos de los pasajeros");
+      return;
+    }
 
     // Preparar datos para la siguiente página (checkout)
     const data = {
@@ -101,4 +123,4 @@ export function PassengerFormContainer() {
       />
     </div>
   );
-} 
+}
