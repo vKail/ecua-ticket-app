@@ -5,6 +5,7 @@ import type { PhysicalSeat } from "./PhysicalSeat";
 import type { City } from "./City";
 import type { RouteSheet } from "./RouteSheet";
 import type { TicketScan } from "./TicketScan";
+import { Passenger } from "./Passenger";
 
 export interface Ticket {
   id: number;
@@ -31,4 +32,8 @@ export interface Ticket {
   destinationId: number;
   destination?: City;
   scans?: TicketScan[];
+  passenger: Passenger;
+  passengerSurname?: string;
+  passsengerDni?: string;
+  passengerEmail?: string;
 }

@@ -8,6 +8,7 @@ import {
 } from "@/features/ticket-sales/components/passenger-form";
 import { Seat } from "@/features/ticket-sales/components/seat-selector";
 import { RouteOption } from "@/features/ticket-sales/components/route-list";
+import { toast } from "sonner";
 
 interface RouteAndSeatsData {
   route: RouteOption;
@@ -74,7 +75,7 @@ export function PassengerFormContainer() {
     );
 
     if (!arePassengersComplete) {
-      alert("Por favor, completa todos los datos de los pasajeros");
+      toast.info("Por favor, completa todos los datos de los pasajeros");
       return;
     }
 
