@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export interface Seat {
   id: string;
@@ -35,6 +36,7 @@ interface SeatSelectorProps {
   maxSeats: number;
   onSeatSelect: (selectedSeats: Seat[]) => void;
   className?: string;
+  routeData?: any;
 }
 
 export function SeatSelector({
@@ -42,28 +44,75 @@ export function SeatSelector({
   maxSeats,
   onSeatSelect,
   className,
+  routeData,
 }: SeatSelectorProps) {
+  const router = useRouter();
+  console.log("SeatSelector renderizado con seats:", seats); // Debug inicial
+  console.log("maxSeats recibido:", maxSeats); // Debug de maxSeats
+
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
 
+  // Actualizar el estado cuando cambian los asientos disponibles
+  useEffect(() => {
+    // Filtrar los asientos seleccionados que ya no están disponibles
+    const availableSelectedSeats = selectedSeats.filter(selectedSeat =>
+      seats.some(seat => seat.id === selectedSeat.id && seat.status === "available")
+    );
+    
+    if (availableSelectedSeats.length !== selectedSeats.length) {
+      setSelectedSeats(availableSelectedSeats);
+      onSeatSelect(availableSelectedSeats);
+    }
+  }, [seats, onSeatSelect]);
+
   const handleSeatClick = (seat: Seat) => {
+    console.log("handleSeatClick llamado con asiento:", seat); // Debug del clic
+    console.log("Asientos actualmente seleccionados:", selectedSeats.length); // Debug de selección actual
+
     if (seat.status === "occupied" || seat.status === "disabled") {
+      console.log("Asiento no disponible:", seat.status); // Debug de estado
       return;
     }
 
     const isSelected = selectedSeats.some((s) => s.id === seat.id);
+    console.log("¿Asiento ya seleccionado?:", isSelected); // Debug de selección
+
+    let updatedSeats: Seat[];
 
     if (isSelected) {
-      setSelectedSeats(selectedSeats.filter((s) => s.id !== seat.id));
+      updatedSeats = selectedSeats.filter((s) => s.id !== seat.id);
+      console.log("Deseleccionando asiento"); // Debug de deselección
     } else {
       if (selectedSeats.length >= maxSeats) {
+        console.log("Límite de asientos alcanzado:", selectedSeats.length, "de", maxSeats); // Debug de límite
         return;
       }
-      setSelectedSeats([...selectedSeats, seat]);
+      updatedSeats = [...selectedSeats, seat];
+      console.log("Seleccionando asiento"); // Debug de selección
     }
+
+    console.log("Nuevos asientos seleccionados:", updatedSeats); // Debug final
+    setSelectedSeats(updatedSeats);
+    onSeatSelect(updatedSeats);
   };
 
-  const handleConfirm = () => {
-    onSeatSelect(selectedSeats);
+  const handleConfirmSelection = () => {
+    if (selectedSeats.length === 0 || !routeData) {
+      console.log("No se puede continuar: no hay asientos seleccionados o ruta");
+      return;
+    }
+
+    console.log("Continuando con:", { route: routeData, seats: selectedSeats });
+    
+    // Preparar datos para la página de pasajeros
+    const data = {
+      route: routeData,
+      seats: selectedSeats,
+    };
+    const encodedData = encodeURIComponent(JSON.stringify(data));
+    const url = `/dashboard/purchase/passengers?data=${encodedData}`;
+    console.log("Navegando a:", url);
+    router.push(url);
   };
 
   const rows = Math.max(...seats.map((seat) => seat.position.row)) + 1;
@@ -130,6 +179,7 @@ export function SeatSelector({
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button
+                              type="button"
                               className={cn(
                                 "w-10 h-10 rounded-sm flex items-center justify-center text-xs font-medium transition-colors",
                                 seat.status === "available" &&
@@ -141,7 +191,10 @@ export function SeatSelector({
                                 seat.status === "disabled" &&
                                   "bg-gray-100 border border-dashed border-gray-400 cursor-not-allowed"
                               )}
-                              onClick={() => handleSeatClick(seat)}
+                              onClick={() => {
+                                console.log("Click en asiento:", seat); // Debug del clic en el botón
+                                handleSeatClick(seat);
+                              }}
                               disabled={
                                 seat.status === "occupied" ||
                                 seat.status === "disabled"
@@ -195,6 +248,7 @@ export function SeatSelector({
                       ${seat.price.toFixed(2)}
                     </span>
                     <button
+                      type="button"
                       className="text-muted-foreground hover:text-foreground"
                       onClick={() => handleSeatClick(seat)}
                     >
@@ -226,10 +280,8 @@ export function SeatSelector({
           )}
         </div>
         <Button
-          onClick={handleConfirm}
-          disabled={
-            selectedSeats.length === 0 || selectedSeats.length > maxSeats
-          }
+          onClick={handleConfirmSelection}
+          disabled={selectedSeats.length === 0 || selectedSeats.length > maxSeats}
         >
           Confirmar selección
         </Button>

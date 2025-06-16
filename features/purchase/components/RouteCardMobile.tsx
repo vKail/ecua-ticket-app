@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface RouteOption {
   id: string;
@@ -20,10 +21,17 @@ interface RouteCardMobileProps {
 }
 
 export function RouteCardMobile({ route, onSelect }: RouteCardMobileProps) {
+  const router = useRouter();
   const busTypeColors: Record<string, string> = {
     Estándar: "bg-blue-100 text-blue-800",
     Ejecutivo: "bg-purple-100 text-purple-800",
     VIP: "bg-amber-100 text-amber-800",
+  };
+
+  const handleSelect = () => {
+    // Codificar los datos de la ruta para pasarlos como parámetro de URL
+    const routeData = encodeURIComponent(JSON.stringify(route));
+    router.push(`/dashboard/purchase/seats?route=${routeData}`);
   };
 
   return (
@@ -80,7 +88,7 @@ export function RouteCardMobile({ route, onSelect }: RouteCardMobileProps) {
           ${route.price.toFixed(2)}
         </span>
       </div>
-      <Button className="w-full mt-2" size="lg" onClick={() => onSelect(route)}>
+      <Button className="w-full mt-2" size="lg" onClick={handleSelect}>
         Seleccionar
       </Button>
     </div>
