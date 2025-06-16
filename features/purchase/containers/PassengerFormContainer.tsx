@@ -32,7 +32,7 @@ export function PassengerFormContainer() {
 
         // Inicializar el array de pasajeros basado en los asientos seleccionados
         const initialPassengers = parsedData.seats.map((seat: Seat) => ({
-          id: crypto.randomUUID(),
+          id: '1',
           firstName: "",
           lastName: "",
           documentType: "cedula",
