@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { GeneralProvider } from "@/shared/providers/general-provider";
+import { PayPalProvider } from "@/shared/providers/PayPalProvider";
 import BackgroundCircles from "@/shared/layout/background-circles";
 
 const geistSans = Geist({
@@ -31,7 +32,9 @@ export default function RootLayout({
       >
         <BackgroundCircles />
         <div className="relative z-[1] min-h-screen">
-          <GeneralProvider>{children}</GeneralProvider>
+          <GeneralProvider>
+            <PayPalProvider>{children}</PayPalProvider>
+          </GeneralProvider>
         </div>
       </body>
     </html>

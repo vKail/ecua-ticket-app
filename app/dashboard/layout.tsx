@@ -10,12 +10,11 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="z-[1]">
-      <div className="min-h-screen w-screen bg-gray-100 flex flex-col justify-center items-center align-middle z-[1]">
+      <div className="min-h-screen w-screen flex flex-col justify-center items-center align-middle z-[1]">
         <UserHeader />
         <main className="flex-1 pb-20 z-[1]">{children}</main>
         <BottomNavigation />
       </div>
-      <BackgroundCircles />
     </div>
   );
 }

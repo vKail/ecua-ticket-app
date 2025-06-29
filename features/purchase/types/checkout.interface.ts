@@ -72,9 +72,7 @@ export interface ValidatePaymentRequest {
 }
 
 export interface ValidatePaymentResponse {
-  success: boolean;
   message: string;
-  data?: any;
 }
 
 export interface CheckoutData {
