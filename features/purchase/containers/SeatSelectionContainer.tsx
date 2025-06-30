@@ -3,28 +3,47 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { RouteOption } from "../components/RouteListMobile";
-import { SeatSelector, Seat } from "@/features/ticket-sales/components/seat-selector";
+import {
+  SeatSelector,
+  Seat,
+} from "@/features/ticket-sales/components/seat-selector";
 import { useAvailableSeats } from "@/features/ticket-sales/hooks/useQueries/useAvailableSeats";
 import { transformPhysicalSeatToSeat } from "@/features/ticket-sales/api/transformers";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { InteractiveBusLayoutSelector } from "@/features/ticket-sales/components/interactive-bus-layout-selector";
+import { RouteSearchData } from "@/features/ticket-sales/components/route-selector";
 
 export function SeatSelectionContainer() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [routeSearch, setRouteSearch] = useState<RouteSearchData | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<RouteOption | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
+  const [passengers, setPassengers] = useState<number>(1);
 
-  // Obtener datos de la ruta seleccionada
+  // Obtener datos de la ruta seleccionada y búsqueda
   useEffect(() => {
     const routeData = searchParams.get("route");
+    const routeSearchData = searchParams.get("routeSearch");
+
     if (routeData) {
       try {
         const parsedRoute = JSON.parse(decodeURIComponent(routeData));
         setSelectedRoute(parsedRoute);
       } catch (error) {
         console.error("Error parsing route data:", error);
+      }
+    }
+
+    if (routeSearchData) {
+      try {
+        const parsedSearch = JSON.parse(decodeURIComponent(routeSearchData));
+        setRouteSearch(parsedSearch);
+        setPassengers(parsedSearch.passengers || 1);
+      } catch (error) {
+        console.error("Error parsing route search data:", error);
       }
     }
   }, [searchParams]);
@@ -39,27 +58,52 @@ export function SeatSelectionContainer() {
     !!selectedRoute
   );
 
-  // Transformar datos de asientos
-  const seats = seatsData?.success && seatsData.data && selectedRoute
-    ? seatsData.data.map((seat) => {
-        console.log("Raw physical seat data:", seat);
-        return transformPhysicalSeatToSeat(seat, selectedRoute.price);
-      })
-    : [];
+  const handleSeatSelect = (seats: any[]) => {
+    console.log("Asientos seleccionados (raw):", seats); // Para debugging
 
-  const handleSeatSelect = (seats: Seat[]) => {
-    console.log("Asientos seleccionados:", seats); // Para debugging
-    setSelectedSeats(seats);
+    // Transform the new seat structure to the old one for compatibility
+    const transformedSeats: Seat[] = seats.map((seat) => ({
+      id: seat.id.toString(),
+      number: seat.number,
+      position: { row: 0, col: 0 }, // These aren't used in the rest of the flow
+      status: "selected" as const,
+      price: seat.price,
+      type: "window" as const, // Default type, not critical for the flow
+    }));
+
+    console.log("Asientos transformados:", transformedSeats); // Para debugging
+    setSelectedSeats(transformedSeats);
+
+    // Redirigir automáticamente después de seleccionar asientos
+    if (transformedSeats.length > 0 && selectedRoute) {
+      console.log("Continuando automáticamente con:", {
+        route: selectedRoute,
+        seats: transformedSeats,
+      });
+
+      // Preparar datos para la página de pasajeros
+      const data = {
+        route: selectedRoute,
+        seats: transformedSeats,
+      };
+      const encodedData = encodeURIComponent(JSON.stringify(data));
+      router.push(`/dashboard/purchase/passengers?data=${encodedData}`);
+    }
   };
 
   const handleContinue = () => {
     if (selectedSeats.length === 0 || !selectedRoute) {
-      console.log("No se puede continuar: no hay asientos seleccionados o ruta");
+      console.log(
+        "No se puede continuar: no hay asientos seleccionados o ruta"
+      );
       return;
     }
-    
-    console.log("Continuando con:", { route: selectedRoute, seats: selectedSeats });
-    
+
+    console.log("Continuando con:", {
+      route: selectedRoute,
+      seats: selectedSeats,
+    });
+
     // Preparar datos para la página de pasajeros
     const data = {
       route: selectedRoute,
@@ -77,9 +121,34 @@ export function SeatSelectionContainer() {
     );
   }
 
+  // Transformar datos de asientos para InteractiveBusLayoutSelector
+  const busSeatsData =
+    seatsData?.success && seatsData.data && selectedRoute
+      ? {
+          busId: parseInt(selectedRoute.id),
+          totalSeats: seatsData.data.length,
+          floors: 1, // Asumiendo un piso por defecto
+          seatsByFloor: {
+            "1": seatsData.data.map((seat) => ({
+              id: seat.id,
+              seatNumber: seat.seatNumber,
+              row: seat.row,
+              column: seat.column,
+              floor: seat.floor,
+              isAvailable: !seat.isTaken,
+              isTaken: seat.isTaken,
+              seatType: seat.seatType?.name || "Standard",
+              price: seat.seatType?.valueToApply || selectedRoute.price,
+              seatValue: seat.seatType?.valueToApply || selectedRoute.price,
+            })),
+          },
+        }
+      : null;
+  const basePrice = selectedRoute?.price || 0;
+
   // Asegurarnos de que maxSeats sea un número válido
-  const maxSeats = selectedRoute.passengers || 1; // Leer el número de pasajeros directamente de selectedRoute
-  console.log("maxSeats:", maxSeats); // Debug
+  const maxSeats = passengers || selectedRoute?.passengers || 1;
+  console.log("maxSeats:", maxSeats, "passengers:", passengers); // Debug
 
   return (
     <div className="min-h-screen bg-white px-4 pt-4 pb-24">
@@ -127,26 +196,16 @@ export function SeatSelectionContainer() {
 
       {!seatsLoading && !seatsError && (
         <>
-          <SeatSelector
-            seats={seats}
-            maxSeats={maxSeats}
-            onSeatSelect={handleSeatSelect}
-            className="mb-6"
-            routeData={selectedRoute}
-          />
-
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4">
-            <Button
-              onClick={handleContinue}
-              disabled={selectedSeats.length === 0}
-              size="lg"
-              className="w-full"
-            >
-              Continuar ({selectedSeats.length} asiento{selectedSeats.length !== 1 ? 's' : ''} seleccionado{selectedSeats.length !== 1 ? 's' : ''})
-            </Button>
-          </div>
+          {!seatsLoading && !seatsError && busSeatsData && (
+            <InteractiveBusLayoutSelector
+              seats={busSeatsData}
+              maxSeats={maxSeats}
+              basePrice={basePrice}
+              onSeatSelect={handleSeatSelect}
+            />
+          )}
         </>
       )}
     </div>
   );
-} 
+}

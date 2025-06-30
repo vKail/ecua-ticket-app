@@ -8,10 +8,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { CheckoutData, OnlineSaleRequest } from "../types/checkout.interface";
-import { useProcessOnlineSale, useValidatePayment } from "../hooks/useCheckout";
+import { useProcessOnlineSale } from "../hooks/useCheckout";
 import { PaymentMethod } from "@/core/enums/PaymentMethod.enum";
 import { PassengerType } from "@/core/enums/PassengerType.enum";
 import { transformCheckoutToApiRequest } from "../api/transformers";
+import { PayPalCheckout } from "./PayPalCheckout";
 
 interface CheckoutFormProps {
   checkoutData: CheckoutData;
@@ -22,9 +23,9 @@ export function CheckoutForm({ checkoutData }: CheckoutFormProps) {
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<PaymentMethod>(PaymentMethod.PAYPAL);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showPayPalButtons, setShowPayPalButtons] = useState(false);
 
   const processOnlineSaleMutation = useProcessOnlineSale();
-  const validatePaymentMutation = useValidatePayment();
 
   const { route, seats, passengers } = checkoutData;
 
@@ -32,61 +33,35 @@ export function CheckoutForm({ checkoutData }: CheckoutFormProps) {
   const totalPrice = seats.reduce((sum, seat) => sum + seat.price, 0);
 
   const handlePayment = async () => {
-    setIsProcessing(true);
-
-    try {
-      // Preparar los tickets para la API usando el transformador
-      const tickets = transformCheckoutToApiRequest(checkoutData);
-
-      const saleRequest: OnlineSaleRequest = {
-        paymentMethod: selectedPaymentMethod,
-        paypalTransactionId: "sample_transaction_id",
-        bankReference: "sample_bank_reference",
-        receiptUrl: "sample_receipt_url",
-        tickets,
-      };
-
-      const result = await processOnlineSaleMutation.mutateAsync(saleRequest);
-
-      // Debug: Log the complete result structure
-      console.log("Complete result structure:", result);
-
-      if (selectedPaymentMethod === PaymentMethod.PAYPAL) {
-        // Para PayPal, redirigir SOLO a la página de espera (SIN validar)
-        const paymentId = (result as any).paymentId;
-        const paypalOrderId = (result as any).paypalOrderId;
-
-        console.log(
-          "PayPal paymentId:",
-          paymentId,
-          "paypalOrderId:",
-          paypalOrderId
-        );
-
-        // El hook ya abre la URL de PayPal automáticamente
-        // Redirigir a página de espera donde se validará periódicamente
-        router.push(
-          `/dashboard/purchase/waiting?paymentId=${paymentId}&paypalOrderId=${paypalOrderId}`
-        );
-      } else {
-        // Para transferencia, validar inmediatamente
-        const paymentId = (result as any).paymentId;
-
-        console.log("Transfer paymentId:", paymentId);
-
-        if (!paymentId) {
-          console.error("PaymentId is undefined. Result structure:", result);
-          throw new Error("PaymentId not found in response");
-        }
-
-        await validatePaymentMutation.mutateAsync({ paymentId });
-        router.push(`/dashboard/purchase/success?paymentId=${paymentId}`);
-      }
-    } catch (error) {
-      console.error("Payment processing error:", error);
-    } finally {
-      setIsProcessing(false);
+    if (selectedPaymentMethod === PaymentMethod.PAYPAL) {
+      setShowPayPalButtons(true);
+      return;
     }
+
+    setIsProcessing(true);
+    const tickets = transformCheckoutToApiRequest(checkoutData);
+    const saleRequest: OnlineSaleRequest = {
+      paymentMethod: selectedPaymentMethod,
+      tickets,
+    };
+
+    const result = await processOnlineSaleMutation.mutateAsync(saleRequest);
+    const paymentId = (result as any).paymentId;
+
+    if (paymentId && selectedPaymentMethod === PaymentMethod.TRANSFER) {
+      router.push(
+        `/dashboard/purchase/transfer-waiting?paymentId=${paymentId}`
+      );
+    }
+
+    setIsProcessing(false);
+  };
+
+  const handlePayPalSuccess = (data: any) => {
+    router.push(`/dashboard/purchase/success?paymentId=${data.paymentId}`);
+  };
+  const handlePayPalError = (error: any) => {
+    setShowPayPalButtons(false);
   };
 
   return (
@@ -235,22 +210,45 @@ export function CheckoutForm({ checkoutData }: CheckoutFormProps) {
         </Card>
       )}
 
-      {/* Botón de pago */}
-      <Button
-        onClick={handlePayment}
-        disabled={
-          isProcessing ||
-          processOnlineSaleMutation.isPending ||
-          validatePaymentMutation.isPending
-        }
-        className="w-full h-12 text-lg font-medium bg-primary hover:bg-primary/90"
-      >
-        {isProcessing
-          ? "Procesando..."
-          : selectedPaymentMethod === PaymentMethod.PAYPAL
-          ? `Pagar $${totalPrice.toFixed(2)} con PayPal`
-          : `Crear reserva por $${totalPrice.toFixed(2)}`}
-      </Button>
+      {/* Botón de pago o botones de PayPal */}
+      {selectedPaymentMethod === PaymentMethod.PAYPAL && showPayPalButtons ? (
+        <div className="space-y-4">
+          <div className="text-center">
+            <p className="text-sm text-gray-600 mb-4">
+              Completa tu pago con PayPal por ${totalPrice.toFixed(2)}
+            </p>
+          </div>
+
+          <PayPalCheckout
+            saleRequest={{
+              paymentMethod: PaymentMethod.PAYPAL,
+              tickets: transformCheckoutToApiRequest(checkoutData),
+            }}
+            onSuccess={handlePayPalSuccess}
+            onError={handlePayPalError}
+          />
+
+          <Button
+            variant="outline"
+            onClick={() => setShowPayPalButtons(false)}
+            className="w-full"
+          >
+            Volver a opciones de pago
+          </Button>
+        </div>
+      ) : (
+        <Button
+          onClick={handlePayment}
+          disabled={isProcessing || processOnlineSaleMutation.isPending}
+          className="w-full h-12 text-lg font-medium bg-primary hover:bg-primary/90"
+        >
+          {isProcessing
+            ? "Procesando..."
+            : selectedPaymentMethod === PaymentMethod.PAYPAL
+            ? "Continuar con PayPal"
+            : `Crear reserva por $${totalPrice.toFixed(2)}`}
+        </Button>
+      )}
 
       <p className="text-xs text-center text-complementary-gray mt-4">
         Al continuar, aceptas nuestros términos y condiciones de servicio

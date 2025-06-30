@@ -68,15 +68,19 @@ export function usePollingValidation({
         );
 
         console.log("✅ Manual polling validation - success:", result);
-        setData(result);
 
-        // Si es exitoso, detener polling automáticamente
-        if (result.success) {
+        // Convertir el resultado booleano a ValidatePaymentResponse
+        if (result) {
+          const successResponse: ValidatePaymentResponse = {
+            message: "Pago validado exitosamente",
+          };
+          setData(successResponse);
           console.log("🛑 Payment validated successfully - stopping polling");
           stopPolling();
+          return successResponse;
         }
 
-        return result;
+        return null;
       } catch (err) {
         const errorInfo = extractErrorInfo(err);
         console.log("❌ Manual polling validation - error:", errorInfo);
@@ -87,7 +91,6 @@ export function usePollingValidation({
             "🔄 Payment already validated - treating as success and stopping polling"
           );
           const successResult: ValidatePaymentResponse = {
-            success: true,
             message: "Payment already validated",
           };
           setData(successResult);
@@ -136,7 +139,7 @@ export function usePollingValidation({
 
   // Efecto para controlar el inicio/parada del polling
   useEffect(() => {
-    if (enabled && paymentId && !data?.success) {
+    if (enabled && paymentId && !data) {
       startPolling();
     } else {
       stopPolling();
@@ -146,7 +149,7 @@ export function usePollingValidation({
     return () => {
       stopPolling();
     };
-  }, [enabled, paymentId, data?.success, startPolling, stopPolling]);
+  }, [enabled, paymentId, data, startPolling, stopPolling]);
 
   // Cleanup al desmontar el componente
   useEffect(() => {

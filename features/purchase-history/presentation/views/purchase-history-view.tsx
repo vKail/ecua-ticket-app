@@ -13,7 +13,7 @@ export const PucharseHistoryView = () => {
       <h1 className="text-2xl font-bold mb-4 text-primary z-50">
         Historial de Compras
       </h1>
-      <div className="flex flex-col space-y-4">
+      <div className="flex flex-col space-y-4 m-2 p-2">
         {purchases?.map((purchase) => (
           <PurchaseHistoryCard key={purchase.id} purchaseItem={purchase} />
         ))}

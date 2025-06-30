@@ -3,6 +3,8 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { PurchaseResponse } from "../../types/purchase.interface";
 import { useRouter } from "next/navigation";
+import { PaymentStatusBadge } from "@/shared/components/PaymentStatusBadge";
+import { PaymentStatus } from "@/core/enums/PaymentStatus.enum";
 
 interface PurchaseHistoryCardProps {
   purchaseItem: PurchaseResponse;
@@ -17,9 +19,11 @@ export function PurchaseHistoryCard({
   );
 
   return (
-    <Card 
+    <Card
       className="bg-secondary border-none shadow-sm rounded-2xl overflow-hidden z-50 cursor-pointer hover:shadow-md transition-shadow"
-      onClick={() => router.push(`/dashboard/purchase-history/${purchaseItem.id}`)}
+      onClick={() =>
+        router.push(`/dashboard/purchase-history/${purchaseItem.id}`)
+      }
     >
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
@@ -35,9 +39,17 @@ export function PurchaseHistoryCard({
 
           <div className="flex-1 ml-4 justify-start">
             <div className="text-left">
-              <h3 className="text-primary font-semibold text-lg mb-1">
-                {ticket?.origin.name} - {ticket?.destination.name}
-              </h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-primary font-semibold text-lg">
+                  {ticket?.origin.name} - {ticket?.destination.name}
+                </h3>
+                <PaymentStatusBadge
+                  status={
+                    (purchaseItem.status as PaymentStatus) ||
+                    PaymentStatus.PENDING
+                  }
+                />
+              </div>
 
               <p className="text-primary text-sm mb-1">
                 Método de pago: {purchaseItem.paymentMethod}

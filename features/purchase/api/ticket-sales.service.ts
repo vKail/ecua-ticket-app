@@ -1,9 +1,5 @@
 import { apiClient } from "@/shared/api/client";
 import { TICKET_SALES_ROUTES } from "@/shared/api/routes/ticket-sales";
-import {
-  CreateCounterSaleRequest,
-  CreateCounterSaleResponse,
-} from "../types/create-counter-sale-schema";
 
 async function createCounterSale(req: any): Promise<any> {
   const { data } = await apiClient.post(TICKET_SALES_ROUTES.counter, req);

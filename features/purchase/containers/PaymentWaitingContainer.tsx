@@ -50,7 +50,7 @@ export function PaymentWaitingContainer() {
   // Efecto para manejar la respuesta de validación
   useEffect(() => {
     if (
-      validationResult?.success &&
+      validationResult &&
       paymentId &&
       !isPaymentValidated &&
       !hasRedirected.current
