@@ -47,7 +47,7 @@ export function PaymentWaitingContainerV2() {
   // Efecto para manejar la respuesta de validación exitosa
   useEffect(() => {
     if (
-      validationResult?.success &&
+      validationResult &&
       paymentId &&
       !isPaymentValidated &&
       !hasRedirected.current
@@ -258,7 +258,7 @@ export function PaymentWaitingContainerV2() {
                   <div>
                     validationResult:{" "}
                     {validationResult
-                      ? "success: " + validationResult.success
+                      ? "success: " + validationResult.message
                       : "null"}
                   </div>
                   <div>error: {error ? "true" : "false"}</div>

@@ -29,7 +29,7 @@ export const userActionsItems: UserActionItem[] = [
   {
     id: "purchase-history",
     name: "Historial de compras",
-    route: "/dashboard/historial-compras",
+    route: "/dashboard/boletos",
     icon: History,
     group: "personal",
   },

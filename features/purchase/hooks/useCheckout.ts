@@ -88,7 +88,7 @@ export function useValidatePaymentPeriodically(
         // tratarlo como éxito para detener el polling
         if (errorInfo.isAlreadyValidated) {
           console.log("🔄 Payment already validated - treating as success");
-          return { success: true, message: "Payment already validated" };
+          return { message: "Payment already validated" };
         }
 
         // Para otros errores, propagar la excepción

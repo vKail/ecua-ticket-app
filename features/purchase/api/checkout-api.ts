@@ -17,7 +17,7 @@ interface CheckoutApiProps {
   validatePayment: (
     paymentId: number,
     data?: ValidatePaymentRequest
-  ) => Promise<ValidatePaymentResponse>;
+  ) => Promise<Boolean>;
 }
 
 export class CheckoutApi implements CheckoutApiProps {
@@ -35,40 +35,29 @@ export class CheckoutApi implements CheckoutApiProps {
       PayPalOrderResponse | TransferSaleResponse
     >(TICKET_SALES_ROUTES.online, data);
 
-    console.log("Raw API response:", response);
-    console.log("Extracted data:", response.data);
-
     return response.data;
   }
-
+  
   async validatePayment(
     paymentId: number,
     data?: ValidatePaymentRequest
-  ): Promise<ValidatePaymentResponse> {
-    console.log("🔍 Validating payment:");
-    console.log("- PaymentId (URL):", paymentId);
-    console.log("- Data (for query):", data);
-
-    // Construir URL con query parameters en lugar de enviarlo en el body
+  ): Promise<Boolean> {
     let url = TICKET_SALES_ROUTES.validatePayment(paymentId);
     if (data?.paypalOrderId) {
       url += `?paypalOrderId=${encodeURIComponent(data.paypalOrderId)}`;
     }
 
-    console.log("- Final URL with query:", url);
+    const response = await this.httpClient.patch<Boolean>(url);
 
-    // Enviar PATCH SIN BODY (undefined) como espera el backend
-    const response = await this.httpClient.patch<ValidatePaymentResponse>(url);
+    if (data?.paypalOrderId) {
+      if (response) {
+        return response.success;
+      } else {
+        throw new Error("Payment not yet validated");
+      }
 
-    console.log("✅ Validation response:", response);
-
-    // Verificar que la respuesta tenga success: true
-    if (response.data && response.data.success) {
-      return response.data;
-    } else {
-      // Si success es false, lanzar error para que TanStack Query lo trate como fallido
-      throw new Error("Payment not yet validated");
     }
+    return response.success;
   }
 
   public static getInstance(): CheckoutApi {
