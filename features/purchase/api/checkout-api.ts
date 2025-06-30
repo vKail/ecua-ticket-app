@@ -37,6 +37,7 @@ export class CheckoutApi implements CheckoutApiProps {
 
     return response.data;
   }
+  
   async validatePayment(
     paymentId: number,
     data?: ValidatePaymentRequest
@@ -54,6 +55,7 @@ export class CheckoutApi implements CheckoutApiProps {
       } else {
         throw new Error("Payment not yet validated");
       }
+
     }
     return response.success;
   }
