@@ -4,10 +4,10 @@ export default function DashboardPage() {
   return (
     <div className="max-w-md mx-auto min-h-screen">
       <div className="mb-2">
-        <h1 className="text-xl font-semibold text-blue-900 mb-1">
+        <h1 className="text-xl font-semibold text-blue-900 mb-1 px-2 mx-2">
           A donde quieres ir hoy?
         </h1>
-        <p className="text-gray-600 mb-6">Vámonos de viaje</p>
+        <p className="text-gray-600 mb-6 px-2 mx-2">Vámonos de viaje</p>
       </div>
       <PurchaseSearchContainer />
     </div>
